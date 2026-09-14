@@ -1,0 +1,336 @@
+/* ============================================================
+   CHECKOUT PAGE — checkout.css
+   Depends on: style.css (CSS variables)
+   ============================================================ */
+
+/* ── Page shell ── */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Page header ── */
+.co-page-header {
+  background: var(--container-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.co-page-logo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  text-decoration: none;
+  color: var(--title-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.co-page-logo svg {
+  color: var(--first-color);
+}
+
+.co-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--first-color);
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: .4rem .8rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background .2s;
+}
+
+.co-page-back:hover {
+  background: rgba(229, 132, 48, .1);
+}
+
+/* ── Main layout ── */
+.co-page-main {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2.5rem 1.5rem 4rem;
+  gap: 2rem;
+}
+
+/* ── Checkout card ── */
+.co-page-card {
+  background: var(--container-color);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, .08);
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Co-header inside page card ── */
+.co-page-card .co-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.8rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.co-page-card .co-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.co-header-sub {
+  font-size: .82rem;
+  color: var(--text-color-light);
+}
+
+/* ── Step indicators ── */
+.co-page-card .co-indicators {
+  padding: 1.4rem 1.8rem .8rem;
+}
+
+/* ── Body ── */
+.co-page-card .co-body {
+  padding: 1.4rem 1.8rem;
+  overflow: visible;
+}
+
+/* ── Payment grid — 2 col on page ── */
+.co-page-card .co-payment__grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ── Mobile number field hidden by default ── */
+.co-mobile-hidden {
+  display: none;
+}
+
+/* ── Footer nav ── */
+.co-page-card .co-footer {
+  padding: 1rem 1.8rem;
+}
+
+/* ── Empty state ── */
+.co-empty-state {
+  display: none;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.co-empty-state p {
+  color: var(--text-color-light);
+  margin-bottom: 1.5rem;
+}
+
+.co-empty-state a {
+  display: inline-block;
+  padding: .8rem 2rem;
+  background: var(--first-color);
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+/* ── Success state ── */
+.co-success-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.co-success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(46, 125, 32, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.co-success-state h2 {
+  font-size: 1.4rem;
+  margin: 0 0 .5rem;
+}
+
+.co-success-state p {
+  color: var(--text-color-light);
+  font-size: .9rem;
+  margin-bottom: 1.5rem;
+}
+
+.co-success-oid {
+  color: var(--first-color);
+  font-weight: 700;
+}
+
+.co-success-home {
+  display: inline-block;
+  padding: .8rem 2rem;
+  background: var(--first-color);
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ── Sidebar ── */
+.co-sidebar {
+  width: 100%;
+  max-width: 360px;
+  background: var(--container-color);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, .08);
+  padding: 1.4rem 1.6rem;
+  position: sticky;
+  top: 84px;
+}
+
+.co-sidebar-title {
+  font-size: .9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--first-color);
+  margin: 0 0 1rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--first-color);
+}
+
+.co-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  margin-bottom: 1.2rem;
+}
+
+.co-sidebar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+}
+
+.co-sidebar-info {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.co-sidebar-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: var(--co-input-bg, #f0f0f0);
+  flex-shrink: 0;
+}
+
+.co-sidebar-name {
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+.co-sidebar-qty {
+  font-size: .73rem;
+  color: var(--text-color-light);
+}
+
+.co-sidebar-price {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--first-color);
+  white-space: nowrap;
+}
+
+.co-sidebar-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: .6rem 0;
+}
+
+.co-sidebar-shipping {
+  display: flex;
+  justify-content: space-between;
+  font-size: .8rem;
+  color: var(--text-color-light);
+  margin-bottom: .5rem;
+}
+
+.co-sidebar-free {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.co-sidebar-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--first-color);
+  border-radius: 8px;
+  padding: .85rem 1rem;
+  color: #fff;
+}
+
+.co-sidebar-total-label {
+  font-size: .85rem;
+  opacity: .9;
+}
+
+.co-sidebar-total-amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* ── Responsive ── */
+@media (max-width: 880px) {
+  .co-page-main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .co-sidebar {
+    max-width: 520px;
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .co-page-main {
+    padding: 1.2rem 1rem 3rem;
+  }
+
+  .co-page-card .co-payment__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Dark mode ── */
+html.dark-theme {
+  --co-bg: #1c1c1c;
+  --co-text: #f2f2f2;
+  --co-input-bg: #2a2a2a;
+}

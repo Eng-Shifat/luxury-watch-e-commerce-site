@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Rolex Watch</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23e58430'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='13' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3Cline x1='32' y1='32' x2='32' y2='22' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='32' y1='32' x2='40' y2='32' stroke='%23fff' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='28' y='10' width='8' height='5' rx='1' fill='%23fff'/%3E%3Crect x='28' y='49' width='8' height='5' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/checkout.css">
+</head>
+<body>
+
+<!-- ===== PAGE HEADER ===== -->
+<header class="co-page-header">
+  <a href="index.html" class="co-page-logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="12" cy="12" r="7"/>
+      <polyline points="12 9 12 12 13.5 13.5"/>
+      <path d="M16.51 17.35l-.35 3.83a2 2 0 01-1.99 1.82H9.83a2 2 0 01-1.99-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 019.83 1h4.35a2 2 0 011.99 1.82l.35 3.83"/>
+    </svg>
+    Rolex
+  </a>
+  <a href="index.html" class="co-page-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back to Store
+  </a>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="co-page-main">
+
+  <!-- LEFT: Checkout steps card -->
+  <div class="co-page-card" id="co-page-card">
+
+    <!-- Empty state -->
+    <div class="co-empty-state" id="co-empty-state">
+      <p>Your cart is empty. Add some watches first!</p>
+      <a href="index.html">← Browse Watches</a>
+    </div>
+
+    <!-- Success state -->
+    <div class="co-success-state" id="co-success-state">
+      <div class="co-success-icon">✅</div>
+      <h2>Order Placed!</h2>
+      <p>Order ID: <span class="co-success-oid" id="co-success-oid"></span><br>
+      WhatsApp এ তোমার order details পাঠানো হচ্ছে…</p>
+      <a href="index.html" class="co-success-home">← Continue Shopping</a>
+    </div>
+
+    <!-- Checkout flow -->
+    <div id="co-flow">
+
+      <!-- Header -->
+      <div class="co-header">
+        <h2>Checkout</h2>
+        <span class="co-header-sub">Secure Order</span>
+      </div>
+
+      <!-- Step indicators -->
+      <div class="co-indicators">
+        <div class="co-indicator__dot is-active" data-step="1">1<span class="co-indicator__label">Shipping</span></div>
+        <div class="co-indicator__line"></div>
+        <div class="co-indicator__dot" data-step="2">2<span class="co-indicator__label">Payment</span></div>
+        <div class="co-indicator__line"></div>
+        <div class="co-indicator__dot" data-step="3">3<span class="co-indicator__label">Review</span></div>
+      </div>
+
+      <!-- Body -->
+      <div class="co-body">
+
+        <!-- Step 1: Shipping -->
+        <div class="co-step is-active" id="co-step-1">
+          <p class="co-section-title">Shipping Information</p>
+          <div class="co-field-group">
+
+            <div class="co-field-wrap">
+              <label for="co-name">Full Name *</label>
+              <input id="co-name" class="co-field" type="text" placeholder="Your full name">
+              <span class="co-error">Name is required</span>
+            </div>
+
+            <div class="co-field-wrap">
+              <label for="co-phone">Phone Number *</label>
+              <input id="co-phone" class="co-field" type="tel" placeholder="01XXXXXXXXX">
+              <span class="co-error">Valid phone number দাও (01XXXXXXXXX)</span>
+            </div>
+
+            <div class="co-field-wrap">
+              <label for="co-address">Billing Address *</label>
+              <input id="co-address" class="co-field" type="text" placeholder="House, Road, Area, District">
+              <span class="co-error">Billing address is required</span>
+            </div>
+
+            <div class="co-field-wrap">
+              <label for="co-delivery">Delivery Address *</label>
+              <input id="co-delivery" class="co-field" type="text" placeholder="Same as billing or different address">
+              <span class="co-error">Delivery address is required</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Step 2: Payment -->
+        <div class="co-step" id="co-step-2">
+          <p class="co-section-title">Payment Method</p>
+          <div class="co-payment__grid">
+
+            <div class="co-payment__card" data-method="cod" onclick="selectPayment('cod')">
+              <span class="co-payment__icon">🏠</span>
+              <div>
+                <p class="co-payment__name">Cash on Delivery</p>
+                <p class="co-payment__sub">Pay when received</p>
+              </div>
+              <div class="co-payment__check"></div>
+            </div>
+
+            <div class="co-payment__card" data-method="bkash" onclick="selectPayment('bkash')">
+              <span class="co-payment__icon">💳</span>
+              <div>
+                <p class="co-payment__name">bKash</p>
+                <p class="co-payment__sub">Mobile payment</p>
+              </div>
+              <div class="co-payment__check"></div>
+            </div>
+
+            <div class="co-payment__card" data-method="nagad" onclick="selectPayment('nagad')">
+              <span class="co-payment__icon">📱</span>
+              <div>
+                <p class="co-payment__name">Nagad</p>
+                <p class="co-payment__sub">Mobile payment</p>
+              </div>
+              <div class="co-payment__check"></div>
+            </div>
+
+            <div class="co-payment__card" data-method="card" onclick="selectPayment('card')">
+              <span class="co-payment__icon">🏦</span>
+              <div>
+                <p class="co-payment__name">Card / Online</p>
+                <p class="co-payment__sub">Stripe / SSLCommerz</p>
+              </div>
+              <div class="co-payment__check"></div>
+            </div>
+
+          </div>
+
+          <div id="co-mobile-number-wrap" class="co-field-wrap co-mobile-hidden">
+            <label id="co-mobile-number-label" for="co-mobile-number">bKash Number</label>
+            <input id="co-mobile-number" class="co-field" type="tel" placeholder="01XXXXXXXXX">
+          </div>
+        </div>
+
+        <!-- Step 3: Review -->
+        <div class="co-step" id="co-step-3">
+          <p class="co-section-title">Order Review</p>
+          <div class="co-summary__list" id="co-summary-list"></div>
+          <div class="co-summary__total-bar">
+            <span class="co-summary__total-label" id="co-summary-items">0 items</span>
+            <span class="co-summary__total-amount" id="co-summary-total">$0</span>
+          </div>
+          <div class="co-customer-recap" id="co-customer-recap"></div>
+        </div>
+
+      </div><!-- /co-body -->
+
+      <!-- Footer nav -->
+      <div class="co-footer">
+        <button class="co-btn co-btn--back" id="co-back-btn" onclick="prevStep()">← Back</button>
+        <button class="co-btn co-btn--next" id="co-next-btn" onclick="nextStep()">Next →</button>
+        <button class="co-btn co-btn--order" id="co-order-btn" onclick="placeOrder()">📦 Place Order</button>
+      </div>
+
+    </div><!-- /co-flow -->
+  </div>
+
+  <!-- RIGHT: Order summary sidebar -->
+  <aside class="co-sidebar" id="co-sidebar">
+    <h3 class="co-sidebar-title">Your Order</h3>
+    <div class="co-sidebar-list" id="co-sidebar-list"></div>
+    <div class="co-sidebar-divider"></div>
+    <div class="co-sidebar-shipping">
+      <span>Shipping</span>
+      <span class="co-sidebar-free">FREE</span>
+    </div>
+    <div class="co-sidebar-total">
+      <span class="co-sidebar-total-label" id="co-sidebar-items">0 items</span>
+      <span class="co-sidebar-total-amount" id="co-sidebar-total">$0</span>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ===== SUCCESS BANNER ===== -->
+<div id="co-success-banner">
+  ✅ Order placed! ID: <strong id="co-success-order-id"></strong> — WhatsApp খুলছে…
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/checkout-page.js"></script>
+
+</body>
+</html>

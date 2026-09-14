@@ -214,7 +214,7 @@
       <span class="cart__prices-item">0 items</span>
       <span class="cart__prices-total">$0</span>
     </div>
-    <button class="cart__checkout" onclick="openCheckout()">Checkout</button>
+    <button class="cart__checkout" onclick="goToCheckout()">Checkout</button>
   </div>
 
   <!-- ── CHECKOUT VIEW (steps inside drawer) ── -->
@@ -357,6 +357,13 @@
 <script src="js/checkout.js"></script>
 
 <script>
+/* Redirect Checkout button to full-page checkout */
+function goToCheckout() {
+  const cart = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
+  if (!cart.length) { alert('Your cart is empty!'); return; }
+  window.location.href = 'checkout.html';
+}
+
 const _origShowStep = showStep;
 window.showStep = function(n) {
   _origShowStep(n);

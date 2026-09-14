@@ -213,6 +213,177 @@
   <button class="cart__checkout">Checkout</button>
 </aside>
 
+<!-- ===== CHECKOUT OVERLAY ===== -->
+<div id="checkout-overlay" onclick="closeCheckout()"></div>
+
+<!-- ===== CHECKOUT MODAL ===== -->
+<div id="checkout-modal">
+  <div class="co-box">
+
+    <!-- Header -->
+    <div class="co-header">
+      <h2>Checkout</h2>
+      <button class="co-close-btn" onclick="closeCheckout()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="co-indicators">
+      <div class="co-indicator__dot is-active" data-step="1">1<span class="co-indicator__label">Shipping</span></div>
+      <div class="co-indicator__line"></div>
+      <div class="co-indicator__dot" data-step="2">2<span class="co-indicator__label">Payment</span></div>
+      <div class="co-indicator__line"></div>
+      <div class="co-indicator__dot" data-step="3">3<span class="co-indicator__label">Review</span></div>
+    </div>
+
+    <!-- Body -->
+    <div class="co-body">
+
+      <!-- Step 1: Shipping -->
+      <div class="co-step is-active" id="co-step-1">
+        <p class="co-section-title">Shipping Information</p>
+        <div class="co-field-group">
+
+          <div class="co-field-wrap">
+            <label for="co-name">Full Name *</label>
+            <input id="co-name" class="co-field" type="text" placeholder="Your full name">
+            <span class="co-error">Name is required</span>
+          </div>
+
+          <div class="co-field-wrap">
+            <label for="co-phone">Phone Number *</label>
+            <input id="co-phone" class="co-field" type="tel" placeholder="01XXXXXXXXX">
+            <span class="co-error">Valid phone number দাও (01XXXXXXXXX)</span>
+          </div>
+
+          <div class="co-field-wrap">
+            <label for="co-address">Billing Address *</label>
+            <input id="co-address" class="co-field" type="text" placeholder="House, Road, Area, District">
+            <span class="co-error">Billing address is required</span>
+          </div>
+
+          <div class="co-field-wrap">
+            <label for="co-delivery">Delivery Address *</label>
+            <input id="co-delivery" class="co-field" type="text" placeholder="Same as billing or different address">
+            <span class="co-error">Delivery address is required</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Step 2: Payment -->
+      <div class="co-step" id="co-step-2">
+        <p class="co-section-title">Payment Method</p>
+        <div class="co-payment__grid">
+
+          <div class="co-payment__card" data-method="cod" onclick="selectPayment('cod')">
+            <span class="co-payment__icon">🏠</span>
+            <div>
+              <p class="co-payment__name">Cash on Delivery</p>
+              <p class="co-payment__sub">Pay when received</p>
+            </div>
+            <div class="co-payment__check"></div>
+          </div>
+
+          <div class="co-payment__card" data-method="bkash" onclick="selectPayment('bkash')">
+            <span class="co-payment__icon">💳</span>
+            <div>
+              <p class="co-payment__name">bKash</p>
+              <p class="co-payment__sub">Mobile payment</p>
+            </div>
+            <div class="co-payment__check"></div>
+          </div>
+
+          <div class="co-payment__card" data-method="nagad" onclick="selectPayment('nagad')">
+            <span class="co-payment__icon">📱</span>
+            <div>
+              <p class="co-payment__name">Nagad</p>
+              <p class="co-payment__sub">Mobile payment</p>
+            </div>
+            <div class="co-payment__check"></div>
+          </div>
+
+          <div class="co-payment__card" data-method="card" onclick="selectPayment('card')">
+            <span class="co-payment__icon">🏦</span>
+            <div>
+              <p class="co-payment__name">Card / Online</p>
+              <p class="co-payment__sub">Stripe / SSLCommerz</p>
+            </div>
+            <div class="co-payment__check"></div>
+          </div>
+
+        </div>
+
+        <!-- bKash / Nagad number input -->
+        <div id="co-mobile-number-wrap" style="display:none;" class="co-field-wrap">
+          <label id="co-mobile-number-label" for="co-mobile-number">bKash Number</label>
+          <input id="co-mobile-number" class="co-field" type="tel" placeholder="01XXXXXXXXX">
+        </div>
+      </div>
+
+      <!-- Step 3: Review & Confirm -->
+      <div class="co-step" id="co-step-3">
+        <p class="co-section-title">Order Review</p>
+
+        <div class="co-summary__list" id="co-summary-list"></div>
+
+        <div class="co-summary__total-bar">
+          <span class="co-summary__total-label" id="co-summary-items">0 items</span>
+          <span class="co-summary__total-amount" id="co-summary-total">$0</span>
+        </div>
+
+        <div class="co-customer-recap" id="co-customer-recap">
+          <!-- filled dynamically on step entry -->
+        </div>
+      </div>
+
+    </div><!-- /co-body -->
+
+    <!-- Footer navigation -->
+    <div class="co-footer" id="co-footer">
+      <button class="co-btn co-btn--back" id="co-back-btn" onclick="prevStep()" style="display:none">← Back</button>
+      <button class="co-btn co-btn--next" id="co-next-btn" onclick="nextStep()">Next →</button>
+      <button class="co-btn co-btn--order" id="co-order-btn" onclick="placeOrder()" style="display:none">📦 Place Order</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SUCCESS BANNER ===== -->
+<div id="co-success-banner">
+  ✅ Order placed! ID: <strong id="co-success-order-id"></strong> — WhatsApp খুলছে…
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/main.js"></script>
+<script src="js/checkout.js"></script>
+
+<script>
+// Step nav button visibility control
+const _origShowStep = showStep;
+window.showStep = function(n) {
+  _origShowStep(n);
+  document.getElementById('co-back-btn').style.display  = n > 1 ? '' : 'none';
+  document.getElementById('co-next-btn').style.display  = n < 3 ? '' : 'none';
+  document.getElementById('co-order-btn').style.display = n === 3 ? '' : 'none';
+
+  // Fill customer recap on step 3
+  if (n === 3) {
+    renderOrderSummary();
+    const name = document.getElementById('co-name').value;
+    const phone = document.getElementById('co-phone').value;
+    const addr = document.getElementById('co-address').value;
+    const del = document.getElementById('co-delivery').value;
+    const payEl = document.querySelector('.co-payment__card.is-selected');
+    const payName = payEl ? payEl.querySelector('.co-payment__name').textContent : '—';
+    document.getElementById('co-customer-recap').innerHTML = `
+      <div><span>Name</span><strong> ${name}</strong></div>
+      <div><span>Phone</span><strong> ${phone}</strong></div>
+      <div><span>Billing</span><strong> ${addr}</strong></div>
+      <div><span>Delivery</span><strong> ${del}</strong></div>
+      <div><span>Payment</span><strong> ${payName}</strong></div>
+    `;
+  }
+};
+</script>
 </body>
 </html>

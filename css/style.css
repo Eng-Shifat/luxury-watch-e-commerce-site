@@ -367,7 +367,7 @@ html.dark-theme {
 }
 .testimonial__orange-block {
   position: absolute;
-  top: -1.8rem; right: clamp(0.4rem, 4vw, 1.8rem);
+  top: -1.8rem; right: clamp(-1.8rem, -4vw, -0.4rem);
   width: 72%; height: 88%;
   background: var(--first-color);
   z-index: 0;

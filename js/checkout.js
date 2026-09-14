@@ -6,24 +6,6 @@
 const SELLER_WHATSAPP = '8801881870349';
 
 /* ============================================================
-   CART SCROLL FIX — prevent page scroll when mouse in cart
-   ============================================================ */
-document.addEventListener('DOMContentLoaded', function () {
-  const cartEl = document.getElementById('cart');
-  if (!cartEl) return;
-
-  cartEl.addEventListener('mouseenter', function () {
-    document.body.classList.add('cart-open');
-  });
-  cartEl.addEventListener('mouseleave', function () {
-    document.body.classList.remove('cart-open');
-  });
-  cartEl.addEventListener('touchstart', function () {
-    document.body.classList.add('cart-open');
-  }, { passive: true });
-});
-
-/* ============================================================
    CART VIEW ↔ CHECKOUT VIEW toggle (inside drawer)
    ============================================================ */
 function openCheckout() {

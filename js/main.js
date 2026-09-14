@@ -113,10 +113,12 @@ function renderCart() {
 function openCart() {
   document.getElementById('cart').classList.add('is-open');
   document.getElementById('cart-overlay').classList.add('is-open');
+  document.body.classList.add('cart-open');
 }
 function closeCart() {
   document.getElementById('cart').classList.remove('is-open');
   document.getElementById('cart-overlay').classList.remove('is-open');
+  document.body.classList.remove('cart-open');
 }
 
 /* ============================================================

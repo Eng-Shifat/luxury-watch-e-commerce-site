@@ -173,7 +173,7 @@ input { font-family: inherit; }
   transition: background .2s;
 }
 .cart__qty-btn:hover { background: var(--first-color); color: #fff; border-color: var(--first-color); }
-.cart__delete { color: var(--first-color); width: 40px; height: 40px; display: grid; place-items: center; align-self: center; cursor: pointer; background: none; border: 0; font-size: 1.1rem; transition: transform .2s; }
+.cart__delete { color: var(--first-color); width: 40px; height: 40px; display: grid; place-items: center; align-self: center; cursor: pointer; background: none; border: 0; transition: transform .2s; }
 .cart__delete:hover { transform: scale(1.2); }
 .cart__prices {
   display: flex; justify-content: space-between; padding-top: 1.4rem; font-size: 1rem;

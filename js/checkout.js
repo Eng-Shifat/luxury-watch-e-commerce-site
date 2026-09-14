@@ -186,97 +186,250 @@ async function placeOrder() {
    PDF INVOICE  (jsPDF via CDN)
    ============================================================ */
 async function generateInvoicePDF({ orderId, orderDate, name, phone, addr, del, cart, total, items, payment, mobNum, paymentLabels }) {
-  // jsPDF already loaded via script tag in HTML
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  const orange = [229, 132, 48];
-  const dark   = [30, 30, 30];
-  const grey   = [120, 120, 120];
-  const light  = [245, 245, 245];
+  /* ── colour palette ── */
+  const orange  = [229, 132, 48];
+  const darkBg  = [20,  20,  20];
+  const dark    = [30,  30,  30];
+  const mid     = [80,  80,  80];
+  const grey    = [130, 130, 130];
+  const light   = [248, 248, 248];
+  const white   = [255, 255, 255];
+  const border  = [220, 220, 220];
 
-  // Header bar
+  const PW = 210, PH = 297;
+  const ML = 14, MR = 196; // left / right margin x
+
+  /* ══════════════════════════════════════════════
+     HEADER — two-tone bar
+  ══════════════════════════════════════════════ */
+  // Dark left panel
+  doc.setFillColor(...darkBg);
+  doc.rect(0, 0, 110, 38, 'F');
+  // Orange right panel
   doc.setFillColor(...orange);
-  doc.rect(0, 0, 210, 28, 'F');
+  doc.rect(110, 0, 100, 38, 'F');
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-  doc.text('MODERN WATCH', 14, 13);
-  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-  doc.text('Premium Timepieces', 14, 20);
-  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-  doc.text('INVOICE', 180, 13, { align: 'right' });
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text(orderId, 180, 20, { align: 'right' });
+  // Watch SVG logo drawn as jsPDF lines (favicon style)
+  // Outer circle
+  doc.setDrawColor(...white); doc.setLineWidth(1.2);
+  doc.circle(24, 19, 10, 'S');
+  // Inner clock face
+  doc.setLineWidth(0.6);
+  doc.circle(24, 19, 7.5, 'S');
+  // Hour hand
+  doc.line(24, 19, 24, 13.5);
+  // Minute hand
+  doc.line(24, 19, 28, 19);
+  // Crown top
+  doc.setLineWidth(1);
+  doc.line(22, 9.5, 26, 9.5);
+  doc.line(22, 9.5, 22, 8);
+  doc.line(26, 9.5, 26, 8);
+  doc.line(22, 8, 26, 8);
+  // Crown bottom
+  doc.line(22, 28.5, 26, 28.5);
+  doc.line(22, 28.5, 22, 30);
+  doc.line(26, 28.5, 26, 30);
+  doc.line(22, 30, 26, 30);
 
-  // Order info box
-  doc.setFillColor(...light);
-  doc.roundedRect(14, 34, 182, 22, 2, 2, 'F');
-  doc.setTextColor(...grey); doc.setFontSize(8);
-  doc.text('Order Date', 18, 41);
-  doc.text('Order ID', 80, 41);
-  doc.text('Payment', 145, 41);
-  doc.setTextColor(...dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
-  doc.text(orderDate, 18, 48);
-  doc.text(orderId, 80, 48);
-  const payLabel = paymentLabels[payment] + (mobNum ? ` (${mobNum})` : '');
-  doc.text(payLabel, 145, 48);
+  // Brand name
+  doc.setTextColor(...white);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
+  doc.text('ROLEX', 38, 16);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  doc.setTextColor(200, 200, 200);
+  doc.text('WATCH', 38, 23);
+  doc.setFontSize(7.5);
+  doc.text('Premium Timepieces', 38, 30);
 
-  // Customer info
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...orange);
-  doc.text('Customer Details', 14, 67);
-  doc.setDrawColor(...orange); doc.line(14, 69, 100, 69);
-
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...dark);
-  doc.text(`Name      : ${name}`, 14, 76);
-  doc.text(`Phone     : ${phone}`, 14, 83);
-  doc.text(`Address   : ${addr}`, 14, 90);
-  doc.text(`Delivery  : ${del}`, 14, 97);
-
-  // Items table
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...orange);
-  doc.text('Order Items', 14, 112);
-  doc.line(14, 114, 196, 114);
-
-  // Table header
-  doc.setFillColor(...orange);
-  doc.rect(14, 116, 182, 8, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
-  doc.text('#', 17, 122);
-  doc.text('Product', 28, 122);
-  doc.text('Unit Price', 120, 122, { align: 'right' });
-  doc.text('Qty', 148, 122, { align: 'right' });
-  doc.text('Subtotal', 194, 122, { align: 'right' });
-
-  // Table rows
-  let y = 130;
+  // Right panel — INVOICE label
+  doc.setTextColor(...white);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(22);
+  doc.text('INVOICE', MR, 17, { align: 'right' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
-  cart.forEach((item, idx) => {
-    const bg = idx % 2 === 0 ? [255, 255, 255] : light;
-    doc.setFillColor(...bg);
-    doc.rect(14, y - 5, 182, 9, 'F');
-    doc.setTextColor(...dark);
-    doc.text(`${idx + 1}`, 17, y);
-    doc.text(item.name, 28, y);
-    doc.text(`$${item.price.toLocaleString()}`, 120, y, { align: 'right' });
-    doc.text(`${item.qty}`, 148, y, { align: 'right' });
-    doc.text(`$${(item.price * item.qty).toLocaleString()}`, 194, y, { align: 'right' });
-    y += 9;
+  doc.setTextColor(255, 230, 190);
+  doc.text(orderId, MR, 26, { align: 'right' });
+  doc.setFontSize(7.5);
+  doc.setTextColor(255, 210, 160);
+  doc.text(orderDate, MR, 33, { align: 'right' });
+
+  /* ══════════════════════════════════════════════
+     INFO STRIP — 3 columns below header
+  ══════════════════════════════════════════════ */
+  doc.setFillColor(...light);
+  doc.rect(0, 38, PW, 22, 'F');
+  doc.setDrawColor(...border); doc.setLineWidth(0.3);
+  doc.line(0, 60, PW, 60);
+
+  const infoY1 = 46, infoY2 = 54;
+  const cols = [ML + 2, 80, 148];
+
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...grey);
+  doc.text('ORDER ID', cols[0], infoY1);
+  doc.text('PAYMENT METHOD', cols[1], infoY1);
+  doc.text('ORDER STATUS', cols[2], infoY1);
+
+  const payLabel = paymentLabels[payment] + (mobNum ? ` (${mobNum})` : '');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...dark);
+  doc.text(orderId, cols[0], infoY2);
+  doc.text(payLabel, cols[1], infoY2);
+
+  // Status badge
+  doc.setFillColor(...orange);
+  doc.roundedRect(cols[2] - 1, infoY2 - 5.5, 32, 7, 1.5, 1.5, 'F');
+  doc.setTextColor(...white); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+  doc.text('CONFIRMED', cols[2] + 15, infoY2 - 0.5, { align: 'center' });
+
+  // Divider lines between columns
+  doc.setDrawColor(...border); doc.setLineWidth(0.4);
+  doc.line(75, 40, 75, 59);
+  doc.line(143, 40, 143, 59);
+
+  /* ══════════════════════════════════════════════
+     CUSTOMER + DELIVERY — side by side
+  ══════════════════════════════════════════════ */
+  const secY = 68;
+
+  // Section headers
+  function sectionHeader(label, x, y) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...orange);
+    doc.text(label, x, y);
+    doc.setDrawColor(...orange); doc.setLineWidth(0.5);
+    doc.line(x, y + 1.5, x + 82, y + 1.5);
+  }
+
+  sectionHeader('CUSTOMER DETAILS', ML, secY);
+  sectionHeader('DELIVERY ADDRESS', 112, secY);
+
+  // Customer left column
+  const rowGap = 7.5;
+  let cy = secY + 10;
+  const custData = [
+    ['Name',  name],
+    ['Phone', phone],
+    ['Address', addr],
+  ];
+  custData.forEach(([lbl, val]) => {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...grey);
+    doc.text(lbl, ML, cy);
+    doc.setTextColor(...dark); doc.setFont('helvetica', 'bold');
+    // wrap long values
+    const lines = doc.splitTextToSize(val, 82);
+    doc.text(lines, ML + 20, cy);
+    cy += rowGap * (lines.length > 1 ? lines.length * 0.9 : 1);
   });
 
-  // Total row
-  y += 4;
-  doc.setFillColor(...dark);
-  doc.rect(130, y - 5, 66, 10, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-  doc.text(`TOTAL  $${total.toLocaleString()}`, 194, y + 1, { align: 'right' });
-  doc.text(`${items} item${items > 1 ? 's' : ''}`, 134, y + 1);
+  // Delivery right column
+  let dy = secY + 10;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...grey);
+  doc.text('To', 112, dy);
+  doc.setTextColor(...dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+  const delLines = doc.splitTextToSize(del, 82);
+  doc.text(delLines, 112 + 10, dy);
 
-  // Footer
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...grey);
-  doc.text('Thank you for shopping with Modern Watch!', 105, 280, { align: 'center' });
-  doc.setDrawColor(...orange); doc.line(14, 282, 196, 282);
-  doc.text('modernwatch.com  •  support@modernwatch.com', 105, 287, { align: 'center' });
+  /* ══════════════════════════════════════════════
+     ITEMS TABLE
+  ══════════════════════════════════════════════ */
+  // Calculate table start Y (below the longer of the two columns)
+  const tableY = Math.max(cy, dy + 20) + 8;
+
+  // Table title
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...orange);
+  doc.text('ORDER ITEMS', ML, tableY);
+  doc.setDrawColor(...orange); doc.setLineWidth(0.5);
+  doc.line(ML, tableY + 1.5, MR, tableY + 1.5);
+
+  // Header row
+  const tHY = tableY + 6;
+  doc.setFillColor(...darkBg);
+  doc.rect(ML, tHY, MR - ML, 8, 'F');
+  doc.setTextColor(...white); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+  doc.text('#',         ML + 3,  tHY + 5.2);
+  doc.text('PRODUCT',  ML + 12, tHY + 5.2);
+  doc.text('UNIT PRICE', 130,   tHY + 5.2, { align: 'right' });
+  doc.text('QTY',       155,    tHY + 5.2, { align: 'right' });
+  doc.text('SUBTOTAL',  MR,     tHY + 5.2, { align: 'right' });
+
+  // Rows
+  let ry = tHY + 8;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+  cart.forEach((item, idx) => {
+    const even = idx % 2 === 0;
+    doc.setFillColor(...(even ? white : light));
+    doc.rect(ML, ry, MR - ML, 9, 'F');
+
+    // left accent bar on odd rows
+    if (!even) {
+      doc.setFillColor(...orange);
+      doc.rect(ML, ry, 2, 9, 'F');
+    }
+
+    doc.setTextColor(...grey);
+    doc.text(`${idx + 1}`, ML + 3, ry + 6);
+    doc.setTextColor(...dark); doc.setFont('helvetica', even ? 'normal' : 'bold');
+    doc.text(item.name, ML + 12, ry + 6);
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(...mid);
+    doc.text(`$${item.price.toLocaleString()}`, 130, ry + 6, { align: 'right' });
+    doc.text(`${item.qty}`, 155, ry + 6, { align: 'right' });
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(...dark);
+    doc.text(`$${(item.price * item.qty).toLocaleString()}`, MR, ry + 6, { align: 'right' });
+
+    // bottom border
+    doc.setDrawColor(...border); doc.setLineWidth(0.2);
+    doc.line(ML, ry + 9, MR, ry + 9);
+    ry += 9;
+  });
+
+  /* ── Totals block ── */
+  ry += 4;
+  // Subtotal row
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...grey);
+  doc.text('Subtotal', 150, ry, { align: 'right' });
+  doc.setTextColor(...dark);
+  doc.text(`$${total.toLocaleString()}`, MR, ry, { align: 'right' });
+
+  ry += 6;
+  doc.text('Shipping', 150, ry, { align: 'right' });
+  doc.setTextColor(...orange);
+  doc.text('FREE', MR, ry, { align: 'right' });
+
+  // Divider
+  ry += 3;
+  doc.setDrawColor(...orange); doc.setLineWidth(0.6);
+  doc.line(130, ry, MR, ry);
+
+  // Grand total
+  ry += 8;
+  doc.setFillColor(...orange);
+  doc.roundedRect(128, ry - 7, 68, 12, 2, 2, 'F');
+  doc.setTextColor(...white); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('TOTAL', 132, ry);
+  doc.text(`$${total.toLocaleString()}`, MR - 1, ry, { align: 'right' });
+  ry += 5;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+  doc.setTextColor(...grey);
+  doc.text(`${items} item${items > 1 ? 's' : ''}`, MR, ry, { align: 'right' });
+
+  /* ══════════════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════════════ */
+  // Orange bottom bar
+  doc.setFillColor(...orange);
+  doc.rect(0, PH - 18, PW, 18, 'F');
+  doc.setTextColor(...white); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+  doc.text('Thank you for choosing ROLEX WATCH!', PW / 2, PH - 11, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+  doc.setTextColor(255, 230, 190);
+  doc.text('rolexwatch.com  •  support@rolexwatch.com  •  WhatsApp: +88 01XXXXXXXXX', PW / 2, PH - 5, { align: 'center' });
+
+  // Watermark logo (faint centre)
+  doc.setTextColor(229, 132, 48); doc.setFont('helvetica', 'bold'); doc.setFontSize(72);
+  doc.setGState(new doc.GState({ opacity: 0.04 }));
+  doc.text('RW', PW / 2, PH / 2 + 10, { align: 'center' });
+  doc.setGState(new doc.GState({ opacity: 1 }));
 
   doc.save(`Invoice_${orderId}.pdf`);
 }

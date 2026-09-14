@@ -364,30 +364,7 @@ function goToCheckout() {
   window.location.href = 'checkout.html';
 }
 
-const _origShowStep = showStep;
-window.showStep = function(n) {
-  _origShowStep(n);
-  document.getElementById('co-back-btn').style.display  = n > 1 ? '' : 'none';
-  document.getElementById('co-next-btn').style.display  = n < 3 ? '' : 'none';
-  document.getElementById('co-order-btn').style.display = n === 3 ? '' : 'none';
 
-  if (n === 3) {
-    renderOrderSummary();
-    const name = document.getElementById('co-name').value;
-    const phone = document.getElementById('co-phone').value;
-    const addr = document.getElementById('co-address').value;
-    const del = document.getElementById('co-delivery').value;
-    const payEl = document.querySelector('.co-payment__card.is-selected');
-    const payName = payEl ? payEl.querySelector('.co-payment__name').textContent : '—';
-    document.getElementById('co-customer-recap').innerHTML = `
-      <div><span>Name</span><strong> ${name}</strong></div>
-      <div><span>Phone</span><strong> ${phone}</strong></div>
-      <div><span>Billing</span><strong> ${addr}</strong></div>
-      <div><span>Delivery</span><strong> ${del}</strong></div>
-      <div><span>Payment</span><strong> ${payName}</strong></div>
-    `;
-  }
-};
 </script>
 </body>
 </html>

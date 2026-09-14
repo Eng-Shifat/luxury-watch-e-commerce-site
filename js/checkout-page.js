@@ -29,7 +29,7 @@ function showStep(n) {
   var backBtn  = document.getElementById('co-back-btn');
   var nextBtn  = document.getElementById('co-next-btn');
   var orderBtn = document.getElementById('co-order-btn');
-  if (backBtn)  backBtn.style.display  = n > 1 ? '' : 'none';
+  if (backBtn)  { backBtn.style.display = n > 1 ? '' : 'none'; }
   if (nextBtn)  nextBtn.style.display  = n < 3 ? '' : 'none';
   if (orderBtn) orderBtn.style.display = n === 3 ? '' : 'none';
   if (n === 3) { renderOrderSummary(); renderCustomerRecap(); }
@@ -103,6 +103,45 @@ function getSelectedPayment() {
 /* ============================================================
    SIDEBAR RENDER
    ============================================================ */
+function sidebarChangeQty(id, delta) {
+  var cart = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
+  var item = cart.find(function(i) { return i.id === id; });
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty < 1) {
+    cart = cart.filter(function(i) { return i.id !== id; });
+  }
+  localStorage.setItem('rolex-cart', JSON.stringify(cart));
+  renderSidebar();
+  /* If on review step, re-render summary too */
+  if (currentStep === 3) renderOrderSummary();
+  /* If cart empty, go to empty state */
+  if (!cart.length) {
+    var flowEl = document.getElementById('co-flow');
+    var sidebarEl = document.getElementById('co-sidebar');
+    var emptyEl = document.getElementById('co-empty-state');
+    if (flowEl) flowEl.style.display = 'none';
+    if (sidebarEl) sidebarEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
+  }
+}
+
+function sidebarRemove(id) {
+  var cart = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
+  cart = cart.filter(function(i) { return i.id !== id; });
+  localStorage.setItem('rolex-cart', JSON.stringify(cart));
+  renderSidebar();
+  if (currentStep === 3) renderOrderSummary();
+  if (!cart.length) {
+    var flowEl = document.getElementById('co-flow');
+    var sidebarEl = document.getElementById('co-sidebar');
+    var emptyEl = document.getElementById('co-empty-state');
+    if (flowEl) flowEl.style.display = 'none';
+    if (sidebarEl) sidebarEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
+  }
+}
+
 function renderSidebar() {
   var cart  = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
   var list  = document.getElementById('co-sidebar-list');
@@ -115,10 +154,17 @@ function renderSidebar() {
         '<img src="' + i.image + '" alt="' + i.name + '" class="co-sidebar-img">' +
         '<div>' +
           '<p class="co-sidebar-name">' + i.name + '</p>' +
-          '<p class="co-sidebar-qty">Qty: ' + i.qty + '</p>' +
+          '<div class="co-sidebar-controls">' +
+            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty('' + i.id + '',-1)">−</button>' +
+            '<span class="co-sidebar-qty-num">' + i.qty + '</span>' +
+            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty('' + i.id + '',1)">+</button>' +
+          '</div>' +
         '</div>' +
       '</div>' +
-      '<p class="co-sidebar-price">$' + (i.price * i.qty).toLocaleString() + '</p>' +
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">' +
+        '<p class="co-sidebar-price">$' + (i.price * i.qty).toLocaleString() + '</p>' +
+        '<button class="co-sidebar-remove" onclick="sidebarRemove('' + i.id + '')" title="Remove">🗑</button>' +
+      '</div>' +
     '</div>';
   }).join('');
   var sItemsEl = document.getElementById('co-sidebar-items');

@@ -200,31 +200,34 @@
 <!-- ===== CART OVERLAY ===== -->
 <div class="cart__overlay" id="cart-overlay" onclick="closeCart()"></div>
 
-<!-- ===== CART DRAWER ===== -->
+<!-- ===== CART DRAWER (cart view + checkout steps inside) ===== -->
 <aside class="cart" id="cart" role="dialog" aria-label="My Cart">
-  <button class="cart__close" onclick="closeCart()" aria-label="Close cart">✕</button>
-  <h2 class="cart__title">My Cart</h2>
-  <div class="cart__list" id="cart-list">
-    <p class="cart__empty">Your cart is empty</p>
-  </div>
-  <div class="cart__prices" id="cart-prices">
-    <span class="cart__prices-item">0 items</span>
-    <span class="cart__prices-total">$0</span>
-  </div>
-  <button class="cart__checkout">Checkout</button>
-</aside>
 
-<!-- ===== CHECKOUT OVERLAY ===== -->
-<div id="checkout-overlay" onclick="closeCheckout()"></div>
+  <!-- ── CART VIEW ── -->
+  <div id="cart-view">
+    <button class="cart__close" onclick="closeCart()" aria-label="Close cart">✕</button>
+    <h2 class="cart__title">My Cart</h2>
+    <div class="cart__list" id="cart-list">
+      <p class="cart__empty">Your cart is empty</p>
+    </div>
+    <div class="cart__prices" id="cart-prices">
+      <span class="cart__prices-item">0 items</span>
+      <span class="cart__prices-total">$0</span>
+    </div>
+    <button class="cart__checkout" onclick="openCheckout()">Checkout</button>
+  </div>
 
-<!-- ===== CHECKOUT MODAL ===== -->
-<div id="checkout-modal">
-  <div class="co-box">
+  <!-- ── CHECKOUT VIEW (steps inside drawer) ── -->
+  <div id="checkout-view" style="display:none; display:flex; flex-direction:column; height:100%;">
 
     <!-- Header -->
     <div class="co-header">
-      <h2>Checkout</h2>
-      <button class="co-close-btn" onclick="closeCheckout()" aria-label="Close">✕</button>
+      <button class="co-back-to-cart" onclick="backToCart()" aria-label="Back to cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Cart
+      </button>
+      <h2 style="font-size:1rem; font-weight:600;">Checkout</h2>
+      <button class="cart__close" onclick="closeCart()" aria-label="Close" style="position:static; width:36px; height:36px; font-size:1.3rem;">✕</button>
     </div>
 
     <!-- Step indicators -->
@@ -314,7 +317,6 @@
 
         </div>
 
-        <!-- bKash / Nagad number input -->
         <div id="co-mobile-number-wrap" style="display:none;" class="co-field-wrap">
           <label id="co-mobile-number-label" for="co-mobile-number">bKash Number</label>
           <input id="co-mobile-number" class="co-field" type="tel" placeholder="01XXXXXXXXX">
@@ -324,30 +326,26 @@
       <!-- Step 3: Review & Confirm -->
       <div class="co-step" id="co-step-3">
         <p class="co-section-title">Order Review</p>
-
         <div class="co-summary__list" id="co-summary-list"></div>
-
         <div class="co-summary__total-bar">
           <span class="co-summary__total-label" id="co-summary-items">0 items</span>
           <span class="co-summary__total-amount" id="co-summary-total">$0</span>
         </div>
-
-        <div class="co-customer-recap" id="co-customer-recap">
-          <!-- filled dynamically on step entry -->
-        </div>
+        <div class="co-customer-recap" id="co-customer-recap"></div>
       </div>
 
     </div><!-- /co-body -->
 
     <!-- Footer navigation -->
-    <div class="co-footer" id="co-footer">
+    <div class="co-footer">
       <button class="co-btn co-btn--back" id="co-back-btn" onclick="prevStep()" style="display:none">← Back</button>
       <button class="co-btn co-btn--next" id="co-next-btn" onclick="nextStep()">Next →</button>
       <button class="co-btn co-btn--order" id="co-order-btn" onclick="placeOrder()" style="display:none">📦 Place Order</button>
     </div>
 
-  </div>
-</div>
+  </div><!-- /checkout-view -->
+
+</aside>
 
 <!-- ===== SUCCESS BANNER ===== -->
 <div id="co-success-banner">
@@ -359,7 +357,6 @@
 <script src="js/checkout.js"></script>
 
 <script>
-// Step nav button visibility control
 const _origShowStep = showStep;
 window.showStep = function(n) {
   _origShowStep(n);
@@ -367,7 +364,6 @@ window.showStep = function(n) {
   document.getElementById('co-next-btn').style.display  = n < 3 ? '' : 'none';
   document.getElementById('co-order-btn').style.display = n === 3 ? '' : 'none';
 
-  // Fill customer recap on step 3
   if (n === 3) {
     renderOrderSummary();
     const name = document.getElementById('co-name').value;

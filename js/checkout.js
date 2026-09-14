@@ -1,25 +1,30 @@
 /* ============================================================
    CHECKOUT — config
    ============================================================ */
-const SELLER_WHATSAPP = '8801XXXXXXXXX'; // ← seller er number change koro
+const SELLER_WHATSAPP = '8801881870349';
 
 /* ============================================================
-   MODAL OPEN / CLOSE
+   CART VIEW ↔ CHECKOUT VIEW toggle (inside drawer)
    ============================================================ */
 function openCheckout() {
   const cart = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
   if (!cart.length) { alert('Your cart is empty!'); return; }
-  document.getElementById('checkout-modal').classList.add('is-open');
-  document.getElementById('checkout-overlay').classList.add('is-open');
-  document.body.style.overflow = 'hidden';
+  document.getElementById('cart-view').style.display = 'none';
+  document.getElementById('checkout-view').style.display = 'flex';
   showStep(1);
-  renderOrderSummary();
+  selectPayment('cod');
+}
+
+function backToCart() {
+  document.getElementById('checkout-view').style.display = 'none';
+  document.getElementById('cart-view').style.display = '';
 }
 
 function closeCheckout() {
-  document.getElementById('checkout-modal').classList.remove('is-open');
-  document.getElementById('checkout-overlay').classList.remove('is-open');
-  document.body.style.overflow = '';
+  // closeCheckout = just close the whole drawer
+  backToCart();
+  document.getElementById('cart').classList.remove('is-open');
+  document.getElementById('cart-overlay').classList.remove('is-open');
 }
 
 /* ============================================================
@@ -175,10 +180,12 @@ async function placeOrder() {
   const waUrl = `https://wa.me/${SELLER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
   window.open(waUrl, '_blank');
 
-  // ── 3. Clear cart & close ────────────────────────────────
+  // ── 3. Clear cart & close drawer ─────────────────────────
   localStorage.removeItem('rolex-cart');
   if (typeof updateCartCount === 'function') { window.cart = []; updateCartCount(); renderCart(); }
-  closeCheckout();
+  backToCart();
+  document.getElementById('cart').classList.remove('is-open');
+  document.getElementById('cart-overlay').classList.remove('is-open');
   showSuccessBanner(orderId);
 }
 
@@ -448,13 +455,6 @@ function showSuccessBanner(orderId) {
    INIT
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Wire checkout button inside cart
-  const checkoutBtn = document.querySelector('.cart__checkout');
-  if (checkoutBtn) checkoutBtn.addEventListener('click', openCheckout);
-
-  // Default payment select
-  selectPayment('cod');
-
   // Clear error on input
   document.querySelectorAll('.co-field').forEach(el => {
     el.addEventListener('input', () => {

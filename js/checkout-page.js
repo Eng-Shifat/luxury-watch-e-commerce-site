@@ -155,15 +155,15 @@ function renderSidebar() {
         '<div>' +
           '<p class="co-sidebar-name">' + i.name + '</p>' +
           '<div class="co-sidebar-controls">' +
-            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty('' + i.id + '',-1)">−</button>' +
+            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty(\'' + i.id + '\',-1)">−</button>' +
             '<span class="co-sidebar-qty-num">' + i.qty + '</span>' +
-            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty('' + i.id + '',1)">+</button>' +
+            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty(\'' + i.id + '\',1)">+</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">' +
         '<p class="co-sidebar-price">$' + (i.price * i.qty).toLocaleString() + '</p>' +
-        '<button class="co-sidebar-remove" onclick="sidebarRemove('' + i.id + '')" title="Remove">🗑</button>' +
+        '<button class="co-sidebar-remove" onclick="sidebarRemove(\'' + i.id + '\')" title="Remove">🗑</button>' +
       '</div>' +
     '</div>';
   }).join('');

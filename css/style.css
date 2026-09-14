@@ -150,7 +150,10 @@ input { font-family: inherit; }
   text-align: center; font-size: 1.35rem; font-weight: 500; margin: 1.4rem 0 2rem;
   color: var(--cart-text, var(--title-color));
 }
+#cart-view { display: flex; flex-direction: column; height: 100%; }
 .cart__list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1.8rem; }
+.cart__prices { flex-shrink: 0; }
+.cart__checkout { flex-shrink: 0; }
 .cart__empty { color: var(--text-color-light); text-align: center; margin-top: 3rem; }
 .cart__card {
   display: grid; grid-template-columns: 88px 1fr auto; gap: 1rem; align-items: center;
@@ -900,4 +903,27 @@ html.dark-theme {
 /* Payment grid 1-col on narrow drawer */
 .cart .co-payment__grid {
   grid-template-columns: 1fr;
+}
+
+/* ============================================================
+   CART SCROLL FIX — mouse inside cart scrolls cart only
+   ============================================================ */
+.cart {
+  overflow-y: auto;
+}
+body.cart-open {
+  overflow: hidden;
+}
+.cart.is-open {
+  overflow-y: auto;
+}
+/* co-body inside checkout view scrollable */
+#checkout-view {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#checkout-view .co-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1;
 }

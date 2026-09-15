@@ -116,6 +116,11 @@ body {
   grid-template-columns: 1fr 1fr;
 }
 
+/* ── Shipping zone grid — 2 col on page ── */
+.co-page-card .co-shipping__grid {
+  grid-template-columns: 1fr 1fr;
+}
+
 /* ── Mobile number field hidden by default ── */
 .co-mobile-hidden {
   display: none;
@@ -284,6 +289,11 @@ body {
   font-weight: 600;
 }
 
+.co-sidebar-shipping-cost {
+  color: var(--title-color);
+  font-weight: 600;
+}
+
 .co-sidebar-total {
   display: flex;
   justify-content: space-between;
@@ -324,6 +334,10 @@ body {
   }
 
   .co-page-card .co-payment__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .co-page-card .co-shipping__grid {
     grid-template-columns: 1fr;
   }
 }

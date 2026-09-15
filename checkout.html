@@ -101,6 +101,21 @@
               <span class="co-error">Delivery address is required</span>
             </div>
 
+            <div class="co-field-wrap">
+              <label>Delivery Zone *</label>
+              <div class="co-shipping__grid" id="co-shipping-grid">
+                <div class="co-shipping__card" data-zone="dhaka" data-cost="60" onclick="selectShippingZone('dhaka',60)">
+                  <p class="co-shipping__name">Inside Dhaka</p>
+                  <p class="co-shipping__sub">৳60 shipping</p>
+                </div>
+                <div class="co-shipping__card" data-zone="outside" data-cost="120" onclick="selectShippingZone('outside',120)">
+                  <p class="co-shipping__name">Outside Dhaka</p>
+                  <p class="co-shipping__sub">৳120 shipping</p>
+                </div>
+              </div>
+              <span class="co-error" id="co-shipping-error">Delivery zone select koro</span>
+            </div>
+
           </div>
         </div>
 
@@ -183,7 +198,7 @@
     <div class="co-sidebar-divider"></div>
     <div class="co-sidebar-shipping">
       <span>Shipping</span>
-      <span class="co-sidebar-free">FREE</span>
+      <span class="co-sidebar-free" id="co-sidebar-shipping-amount">Select delivery zone</span>
     </div>
     <div class="co-sidebar-total">
       <span class="co-sidebar-total-label" id="co-sidebar-items">0 items</span>
@@ -199,6 +214,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/orders-store.js"></script>
 <script src="js/checkout-page.js"></script>
 
 </body>

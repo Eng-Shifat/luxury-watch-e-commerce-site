@@ -82,29 +82,50 @@ function renderCart() {
     prices.innerHTML = '<span class="cart__prices-item">0 items</span><span class="cart__prices-total">$0</span>';
     return;
   }
-  list.innerHTML = cart.map(item => `
-    <div class="cart__card">
-      <div class="cart__thumb"><img src="${item.image}" alt="${item.name}"></div>
-      <div>
-        <p class="cart__name">${item.name}</p>
-        <p class="cart__price">$${item.price.toLocaleString()}</p>
-        <div class="cart__amount">
-          <button class="cart__qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
-          <span>${item.qty}</span>
-          <button class="cart__qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+  const emptyMsg = list.querySelector('.cart__empty');
+  if (emptyMsg) emptyMsg.remove();
+
+  const cartIds = cart.map(item => item.id);
+  /* Remove cards for items no longer in the cart */
+  list.querySelectorAll('.cart__card').forEach(card => {
+    if (!cartIds.includes(card.dataset.id)) card.remove();
+  });
+
+  cart.forEach(item => {
+    let card = list.querySelector('.cart__card[data-id="' + item.id + '"]');
+    if (card) {
+      /* Item already rendered — just update its quantity, no re-render/re-animate */
+      const qtyEl = card.querySelector('.cart__qty-num');
+      if (qtyEl) qtyEl.textContent = item.qty;
+    } else {
+      /* Genuinely new item — create it once, so the slide-in animation plays only for this card */
+      card = document.createElement('div');
+      card.className = 'cart__card';
+      card.dataset.id = item.id;
+      card.innerHTML = `
+        <div class="cart__thumb"><img src="${item.image}" alt="${item.name}"></div>
+        <div>
+          <p class="cart__name">${item.name}</p>
+          <p class="cart__price">$${item.price.toLocaleString()}</p>
+          <div class="cart__amount">
+            <button class="cart__qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+            <span class="cart__qty-num">${item.qty}</span>
+            <button class="cart__qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+          </div>
         </div>
-      </div>
-      <button class="cart__delete" onclick="removeFromCart('${item.id}')" aria-label="Remove item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-          <path d="M10 11v6"/>
-          <path d="M14 11v6"/>
-          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-        </svg>
-      </button>
-    </div>
-  `).join('');
+        <button class="cart__delete" onclick="removeFromCart('${item.id}')" aria-label="Remove item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/>
+            <path d="M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </button>`;
+      list.appendChild(card);
+    }
+  });
+
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
   const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
   prices.innerHTML = `<span class="cart__prices-item">${totalItems} item${totalItems > 1 ? 's' : ''}</span><span class="cart__prices-total">$${totalPrice.toLocaleString()}</span>`;

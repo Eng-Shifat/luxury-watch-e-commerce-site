@@ -73,6 +73,18 @@ function validateShipping() {
     }
     ok = false;
   }
+
+  var shipGrid  = document.getElementById('co-shipping-grid');
+  var shipError = document.getElementById('co-shipping-error');
+  if (!getSelectedShipping()) {
+    if (shipGrid)  shipGrid.classList.add('is-error');
+    if (shipError) shipError.style.display = 'block';
+    ok = false;
+  } else {
+    if (shipGrid)  shipGrid.classList.remove('is-error');
+    if (shipError) shipError.style.display = 'none';
+  }
+
   return ok;
 }
 
@@ -98,6 +110,38 @@ function selectPayment(method) {
 function getSelectedPayment() {
   var sel = document.querySelector('.co-payment__card.is-selected');
   return sel ? sel.dataset.method : null;
+}
+
+/* ============================================================
+   SHIPPING ZONE
+   ============================================================ */
+function selectShippingZone(zone, cost) {
+  document.querySelectorAll('.co-shipping__card').forEach(function (c) {
+    c.classList.remove('is-selected');
+  });
+  var card = document.querySelector('.co-shipping__card[data-zone="' + zone + '"]');
+  if (card) card.classList.add('is-selected');
+
+  localStorage.setItem('rolex-shipping-zone', JSON.stringify({ zone: zone, cost: cost }));
+
+  var grid  = document.getElementById('co-shipping-grid');
+  var error = document.getElementById('co-shipping-error');
+  if (grid)  grid.classList.remove('is-error');
+  if (error) error.style.display = 'none';
+
+  renderSidebar();
+  if (currentStep === 3) renderOrderSummary();
+}
+
+function getSelectedShipping() {
+  var sel = document.querySelector('.co-shipping__card.is-selected');
+  if (sel) return { zone: sel.dataset.zone, cost: Number(sel.dataset.cost) };
+  var saved = JSON.parse(localStorage.getItem('rolex-shipping-zone') || 'null');
+  return saved;
+}
+
+function shippingZoneLabel(zone) {
+  return zone === 'dhaka' ? 'Inside Dhaka' : zone === 'outside' ? 'Outside Dhaka' : '—';
 }
 
 /* ============================================================
@@ -146,31 +190,67 @@ function renderSidebar() {
   var cart  = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
   var list  = document.getElementById('co-sidebar-list');
   if (!list) return;
-  var total = cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
-  var items = cart.reduce(function (s, i) { return s + i.qty; }, 0);
-  list.innerHTML = cart.map(function (i) {
-    return '<div class="co-sidebar-row">' +
-      '<div class="co-sidebar-info">' +
-        '<img src="' + i.image + '" alt="' + i.name + '" class="co-sidebar-img">' +
-        '<div>' +
-          '<p class="co-sidebar-name">' + i.name + '</p>' +
-          '<div class="co-sidebar-controls">' +
-            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty(\'' + i.id + '\',-1)">−</button>' +
-            '<span class="co-sidebar-qty-num">' + i.qty + '</span>' +
-            '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty(\'' + i.id + '\',1)">+</button>' +
+  var subtotal = cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
+  var items    = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+
+  var cartIds = cart.map(function (i) { return i.id; });
+  var existingRows = list.querySelectorAll('.co-sidebar-row');
+  for (var r = 0; r < existingRows.length; r++) {
+    if (cartIds.indexOf(existingRows[r].dataset.id) === -1) existingRows[r].remove();
+  }
+
+  cart.forEach(function (i) {
+    var row = list.querySelector('.co-sidebar-row[data-id="' + i.id + '"]');
+    if (row) {
+      /* Already rendered — just update the changing numbers, no full re-render */
+      var qtyEl   = row.querySelector('.co-sidebar-qty-num');
+      var priceEl = row.querySelector('.co-sidebar-price');
+      if (qtyEl)   qtyEl.textContent = i.qty;
+      if (priceEl) priceEl.textContent = '$' + (i.price * i.qty).toLocaleString();
+    } else {
+      row = document.createElement('div');
+      row.className = 'co-sidebar-row';
+      row.dataset.id = i.id;
+      row.innerHTML =
+        '<div class="co-sidebar-info">' +
+          '<img src="' + i.image + '" alt="' + i.name + '" class="co-sidebar-img">' +
+          '<div>' +
+            '<p class="co-sidebar-name">' + i.name + '</p>' +
+            '<div class="co-sidebar-controls">' +
+              '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty(\'' + i.id + '\',-1)">−</button>' +
+              '<span class="co-sidebar-qty-num">' + i.qty + '</span>' +
+              '<button class="co-sidebar-qty-btn" onclick="sidebarChangeQty(\'' + i.id + '\',1)">+</button>' +
+            '</div>' +
           '</div>' +
         '</div>' +
-      '</div>' +
-      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">' +
-        '<p class="co-sidebar-price">$' + (i.price * i.qty).toLocaleString() + '</p>' +
-        '<button class="co-sidebar-remove" onclick="sidebarRemove(\'' + i.id + '\')" title="Remove">🗑</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">' +
+          '<p class="co-sidebar-price">$' + (i.price * i.qty).toLocaleString() + '</p>' +
+          '<button class="co-sidebar-remove" onclick="sidebarRemove(\'' + i.id + '\')" title="Remove">🗑</button>' +
+        '</div>';
+      list.appendChild(row);
+    }
+  });
+
+  var shipping    = getSelectedShipping();
+  var shippingCost = shipping ? shipping.cost : 0;
+  var grandTotal   = subtotal + shippingCost;
+
   var sItemsEl = document.getElementById('co-sidebar-items');
   var sTotalEl = document.getElementById('co-sidebar-total');
+  var sShipEl  = document.getElementById('co-sidebar-shipping-amount');
   if (sItemsEl) sItemsEl.textContent = items + ' item' + (items > 1 ? 's' : '');
-  if (sTotalEl) sTotalEl.textContent = '$' + total.toLocaleString();
+  if (sTotalEl) sTotalEl.textContent = '$' + grandTotal.toLocaleString();
+  if (sShipEl) {
+    if (shipping) {
+      sShipEl.textContent = '৳' + shipping.cost.toLocaleString();
+      sShipEl.classList.remove('co-sidebar-free');
+      sShipEl.classList.add('co-sidebar-shipping-cost');
+    } else {
+      sShipEl.textContent = 'Select delivery zone';
+      sShipEl.classList.remove('co-sidebar-shipping-cost');
+      sShipEl.classList.add('co-sidebar-free');
+    }
+  }
 }
 
 /* ============================================================
@@ -180,8 +260,11 @@ function renderOrderSummary() {
   var cart  = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
   var list  = document.getElementById('co-summary-list');
   if (!list) return;
-  var total = cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
-  var items = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+  var subtotal = cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
+  var items    = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+  var shipping = getSelectedShipping();
+  var shippingCost = shipping ? shipping.cost : 0;
+  var total = subtotal + shippingCost;
   list.innerHTML = cart.map(function (i) {
     return '<div class="co-summary__row">' +
       '<div class="co-summary__info">' +
@@ -207,6 +290,8 @@ function renderCustomerRecap() {
   var del     = (document.getElementById('co-delivery')|| {}).value || '';
   var payEl   = document.querySelector('.co-payment__card.is-selected');
   var payName = payEl ? payEl.querySelector('.co-payment__name').textContent : '—';
+  var shipping = getSelectedShipping();
+  var shipName = shipping ? shippingZoneLabel(shipping.zone) + ' (৳' + shipping.cost + ')' : '—';
   var recap   = document.getElementById('co-customer-recap');
   if (!recap) return;
   recap.innerHTML =
@@ -214,6 +299,7 @@ function renderCustomerRecap() {
     '<div><span>Phone</span><strong> '   + phone   + '</strong></div>' +
     '<div><span>Billing</span><strong> ' + addr    + '</strong></div>' +
     '<div><span>Delivery</span><strong> '+ del     + '</strong></div>' +
+    '<div><span>Shipping</span><strong> '+ shipName+ '</strong></div>' +
     '<div><span>Payment</span><strong> ' + payName + '</strong></div>';
 }
 
@@ -227,6 +313,9 @@ async function placeOrder() {
   var payment = getSelectedPayment();
   if (!payment) { alert('Payment method select koro!'); return; }
 
+  var shipping = getSelectedShipping();
+  if (!shipping) { alert('Delivery zone select koro!'); return; }
+
   var cart      = JSON.parse(localStorage.getItem('rolex-cart') || '[]');
   var name      = document.getElementById('co-name').value.trim();
   var phone     = document.getElementById('co-phone').value.trim();
@@ -234,14 +323,34 @@ async function placeOrder() {
   var del       = document.getElementById('co-delivery').value.trim();
   var mobNumEl  = document.getElementById('co-mobile-number');
   var mobNum    = mobNumEl ? mobNumEl.value.trim() : '';
-  var total     = cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
+  var subtotal  = cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
+  var shippingCost = shipping.cost;
+  var total     = subtotal + shippingCost;
   var items     = cart.reduce(function (s, i) { return s + i.qty; }, 0);
   var orderId   = 'ORD-' + Date.now().toString().slice(-6);
   var orderDate = new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' });
   var paymentLabels = { cod: 'Cash on Delivery', bkash: 'bKash', nagad: 'Nagad', card: 'Card / Online' };
+  var shipLabel = shippingZoneLabel(shipping.zone);
+
+  /* Save order to the data store (localStorage now — swaps to Supabase later) */
+  if (window.OrdersStore) {
+    OrdersStore.save({
+      id: orderId,
+      date: orderDate,
+      timestamp: Date.now(),
+      status: 'Pending',
+      customer: { name: name, phone: phone, billingAddress: addr, deliveryAddress: del },
+      items: cart.map(function (i) { return { id: i.id, name: i.name, price: i.price, qty: i.qty }; }),
+      shipping: { zone: shipping.zone, label: shipLabel, cost: shippingCost },
+      payment: { method: payment, label: paymentLabels[payment], mobileNumber: mobNum || null },
+      subtotal: subtotal,
+      total: total,
+      itemCount: items
+    });
+  }
 
   /* 1. Download PDF invoice for client */
-  await generateInvoicePDF({ orderId, orderDate, name, phone, addr, del, cart, total, items, payment, mobNum, paymentLabels });
+  await generateInvoicePDF({ orderId, orderDate, name, phone, addr, del, cart, subtotal, shippingCost, shipLabel, total, items, payment, mobNum, paymentLabels });
 
   /* 2. Build WhatsApp message → ADMIN receives it */
   var itemLines = cart.map(function (i) {
@@ -257,14 +366,16 @@ async function placeOrder() {
     '\uD83D\uDC64 *Customer*\n  Name: ' + name + '\n  Phone: ' + phone + '\n\n' +
     '\uD83D\uDCCD *Address*\n  Billing: ' + addr + '\n  Delivery: ' + del + '\n\n' +
     '\uD83D\uDCE6 *Items*\n' + itemLines + '\n\n' +
+    '\uD83D\uDE9A Shipping: ' + shipLabel + ' (\u09F3' + shippingCost.toLocaleString() + ')\n' +
     '\uD83D\uDCB3 Payment: ' + payInfo + '\n' +
-    '\uD83E\uDDFE Total: *$' + total.toLocaleString() + '* (' + items + ' item' + (items > 1 ? 's' : '') + ')\n\n' +
+    '\uD83E\uDDFE Total: *$' + total.toLocaleString() + '* (' + items + ' item' + (items > 1 ? 's' : '') + ' + shipping)\n\n' +
     '_Invoice PDF downloaded on client device_';
 
   window.open('https://wa.me/' + SELLER_WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank');
 
-  /* 3. Clear cart */
+  /* 3. Clear cart & shipping selection */
   localStorage.removeItem('rolex-cart');
+  localStorage.removeItem('rolex-shipping-zone');
 
   /* 4. Show success state */
   var flowEl    = document.getElementById('co-flow');
@@ -289,7 +400,7 @@ async function placeOrder() {
 /* ============================================================
    PDF INVOICE
    ============================================================ */
-async function generateInvoicePDF({ orderId, orderDate, name, phone, addr, del, cart, total, items, payment, mobNum, paymentLabels }) {
+async function generateInvoicePDF({ orderId, orderDate, name, phone, addr, del, cart, subtotal, shippingCost, shipLabel, total, items, payment, mobNum, paymentLabels }) {
   if (!window.jspdf) { console.warn('jsPDF not loaded'); return; }
   var jsPDF  = window.jspdf.jsPDF;
   var doc    = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -377,9 +488,11 @@ async function generateInvoicePDF({ orderId, orderDate, name, phone, addr, del, 
   ry += 4;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...grey);
   doc.text('Subtotal', 150, ry, { align: 'right' }); doc.setTextColor(...dark);
-  doc.text('$' + total.toLocaleString(), MR, ry, { align: 'right' });
+  doc.text('$' + subtotal.toLocaleString(), MR, ry, { align: 'right' });
   ry += 6;
-  doc.text('Shipping', 150, ry, { align: 'right' }); doc.setTextColor(...orange); doc.text('FREE', MR, ry, { align: 'right' });
+  doc.setTextColor(...grey);
+  doc.text('Shipping (' + shipLabel + ')', 150, ry, { align: 'right' }); doc.setTextColor(...dark);
+  doc.text('Tk ' + shippingCost.toLocaleString(), MR, ry, { align: 'right' });
   ry += 3; doc.setDrawColor(...orange); doc.setLineWidth(0.6); doc.line(130, ry, MR, ry);
   ry += 8;
   doc.setFillColor(...orange); doc.roundedRect(128, ry - 7, 68, 12, 2, 2, 'F');
@@ -420,6 +533,12 @@ document.addEventListener('DOMContentLoaded', function () {
   renderSidebar();
   showStep(1);
   selectPayment('cod');
+
+  var savedShipping = JSON.parse(localStorage.getItem('rolex-shipping-zone') || 'null');
+  if (savedShipping) {
+    var savedCard = document.querySelector('.co-shipping__card[data-zone="' + savedShipping.zone + '"]');
+    if (savedCard) savedCard.classList.add('is-selected');
+  }
 
   document.querySelectorAll('.co-field').forEach(function (el) {
     el.addEventListener('input', function () {
